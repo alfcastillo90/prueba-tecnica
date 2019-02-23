@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Compras;
+use App\DetalleCompras;
 
 class ComprasController extends Controller
 {
@@ -13,20 +15,32 @@ class ComprasController extends Controller
      */
     public function index()
     {
-        $compras = Compras::all();
-
-        return view('compras.index', compact('compras'));
+        try
+        {
+            $compras = Compras::all();
+            return response()->json($compras);
+        }
+        catch(Exception $e)
+        {
+            return response()->json($e);
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function getComprasWithDetalles()
     {
-        return view('compras.create');
+        try
+        {
+            $compras = Compras::join('detalle_compras', 'compras.id', '=', 'detalle_compras.compra_id')
+            ->select('compras.*','detalle_compras.*')
+            ->get();
+            return response()->json($compras);
+        }
+        catch(Exception $e)
+        {
+            return response()->json($e);
+        }
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -36,40 +50,25 @@ class ComprasController extends Controller
      */
     public function store(Request $request)
     {
-      $request->validate([
-        'producto'=>'required',
-        'cantidad'=> 'required|integer'
-      ]);
-      $compra = new Compras([
-        'producto' => $request->get('producto'),
-        'cantidad'=> $request->get('cantidad')
-      ]);
-      $compra->save();
-      return redirect('/compras')->with('success', 'compra registrada');
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+      try
+      {
+        $request->validate([
+            'producto'=>'required',
+            'cantidad'=> 'required|integer'
+          ]);
+          $compra = new Compras([
+            'producto' => $request->get('producto'),
+            'cantidad'=> $request->get('cantidad')
+          ]);
+          $compra->save();
+          return response()->json(["status"=>"ok",$compra]);
+      }
+      catch(Exception $e)
+      {
+          return response()->json($e);
+      }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        $compra = Compras::find($id);
-
-        return view('compras.edit', compact('compras'));
     }
 
     /**
@@ -81,14 +80,20 @@ class ComprasController extends Controller
      */
     public function update(Request $request, $id)
     {
-  
-        $compra = Compras::find($id);
-        $compra->compra_name = $request->get('cantidad');
-        $compra->compra_price = $request->get('producto');
-        $compra->save();
-  
-        return redirect('/compras')->with('success', 'Compra actualizada');
-  }
+        try
+        {
+            $compra = Compras::find($id);
+            $compra->cantidad = $request->get('cantidad');
+            $compra->producto = $request->get('producto');
+            $compra->save();
+            return response()->json(["status"=>"ok",$compra]);
+        }
+        catch(Exception $e)
+        {
+            return response()->json($e);
+        }
+
+    }
     /**
      * Remove the specified resource from storage.
      *
@@ -100,6 +105,6 @@ class ComprasController extends Controller
         $compras = Compras::find($id);
         $compras->delete();
 
-        return redirect('/compras')->with('success', 'Stock has been deleted Successfully');
+        return response()->json(["status"=>"ok"]);
     }
 }

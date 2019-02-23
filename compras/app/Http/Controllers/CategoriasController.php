@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Categorias;
 
 class CategoriasController extends Controller
 {
@@ -13,20 +14,11 @@ class CategoriasController extends Controller
      */
     public function index()
     {
-        //
+        $categorias =  Categorias::All();
+        return response()->json($categorias);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
+        /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -34,29 +26,23 @@ class CategoriasController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+      try
+      {
+        $request->validate([
+            'nombre'=>'required',
+          ]);
+          $categoria = new Categorias([
+            'nombre' => $request->get('nombre')
+          ]);
+          $categoria->save();
+          return response()->json(["status"=>"ok",$categoria]);
+      }
+      catch(Exception $e)
+      {
+          return response()->json($e);
+      }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**
@@ -68,9 +54,19 @@ class CategoriasController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
-    }
+        try
+        {
+            $categoria = Categorias::find($id);
+            $categoria->nombre = $request->get('nombre');
+            $categoria->save();
+            return response()->json(["status"=>"ok",$categoria]);
+        }
+        catch(Exception $e)
+        {
+            return response()->json($e);
+        }
 
+    }
     /**
      * Remove the specified resource from storage.
      *
@@ -79,6 +75,10 @@ class CategoriasController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $categorias = Categorias::find($id);
+        $categorias->delete();
+
+        return response()->json(["status"=>"ok"]);
     }
+
 }
