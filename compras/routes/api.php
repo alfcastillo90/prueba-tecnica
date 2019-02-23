@@ -16,3 +16,13 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('compras','ComprasController@index');
+Route::get('compras/detallesasociados','ComprasController@getComprasWithDetalles');
+Route::get('detalle_compras','DetalleComprasController@index');
+Route::get('detalle_compras/totalescompras','DetalleComprasController@getPreciosCompras');
+/*
+Route::apiResource('categorias','CategoriasController');
+Route::apiResource('compras','ComprasController');
+Route::apiResource('detalle_compras','DetalleComprasController');*/
+
